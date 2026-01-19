@@ -23,7 +23,7 @@ function Register() {
     e.preventDefault();
     try {
       // ✅ Send form data to backend
-      const res = await axios.post("http://localhost:8080/api/users", form);
+      await axios.post("http://localhost:8080/api/users", form);
 
       alert("Registered successfully! Please login.");
       navigate("/"); // back to login
