@@ -8,7 +8,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    @Value("${file.upload-dir}")
+    // Adding ":uploads/" provides a default if the property isn't found
+    @Value("${file.upload-dir:uploads/}") 
     private String uploadDir;
 
     @Override
