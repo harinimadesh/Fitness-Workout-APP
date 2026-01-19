@@ -20,26 +20,19 @@ function Register() {
     setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      // ✅ Send form data to backend
-      const res = await axios.post("http://localhost:8080/api/users", form);
-
-      alert("Registered successfully! Please login.");
-      navigate("/"); // back to login
-    } catch (err) {
-  if (err.response) {
-    // If backend sends a string → show it directly
-    // If backend sends an object → show its "message" field
-    const message = typeof err.response.data === "string"
-      ? err.response.data
-      : err.response.data.message || "Registration failed";
-    alert(`Registration failed: ${message}`);
-  } else {
-    alert("Server error, please try again later.");
+  e.preventDefault();
+  try {
+    // Detect environment: use Vercel env var if present, else fallback to local
+    const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
+    
+    const res = await axios.post(`${API_BASE_URL}/api/users`, form);
+    alert("Registered successfully!");
+    navigate("/"); 
+  } catch (err) {
+    const errorMsg = err.response?.data?.message || err.message || "Registration failed";
+    alert(`Error: ${errorMsg}`);
   }
-}
-  };
+};
 
   return (
     <div className="container">
