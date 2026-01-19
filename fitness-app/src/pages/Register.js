@@ -22,25 +22,26 @@ function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // ✅ Send form data to backend
-      await axios.post("http://localhost:8080/api/users", form);
+      // Use your Render URL here! 
+      // Replace 'your-backend-name.onrender.com' with your actual Render service URL
+      const API_BASE_URL = "https://your-backend-name.onrender.com";
+      
+      await axios.post(`${API_BASE_URL}/api/users`, form);
 
       alert("Registered successfully! Please login.");
-      navigate("/"); // back to login
+      navigate("/"); 
     } catch (err) {
-  if (err.response) {
-    // If backend sends a string → show it directly
-    // If backend sends an object → show its "message" field
-    const message = typeof err.response.data === "string"
-      ? err.response.data
-      : err.response.data.message || "Registration failed";
-    alert(`Registration failed: ${message}`);
-  } else {
-    alert("Server error, please try again later.");
-  }
-}
+      if (err.response) {
+        const message = typeof err.response.data === "string"
+          ? err.response.data
+          : err.response.data.message || "Registration failed";
+        alert(`Registration failed: ${message}`);
+      } else {
+        // This is where you see ERR_CONNECTION_REFUSED
+        alert("Cannot connect to the server. Is the Render URL correct?");
+      }
+    }
   };
-
   return (
     <div className="container">
       <div className="card" style={{ maxWidth: 520, margin: "20px auto" }}>
