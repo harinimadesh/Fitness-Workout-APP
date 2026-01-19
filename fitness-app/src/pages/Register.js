@@ -19,23 +19,28 @@ function Register() {
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
-  // Inside Register.js - handleSubmit function
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    // 1. Get this URL from your Render Dashboard (e.g., https://fitness-app-backend.onrender.com)
-    // 2. Make sure there is NO trailing slash at the end of the base URL
-    const API_BASE_URL = "https://your-actual-app-name.onrender.com"; 
-    
-    // This combines to: https://your-actual-app-name.onrender.com/api/users
-    await axios.post(`${API_BASE_URL}/api/users`, form);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      // ✅ Send form data to backend
+      const res = await axios.post("http://localhost:8080/api/users", form);
 
-    alert("Registered successfully! Please login.");
-    navigate("/"); 
-  } catch (err) {
-    // ... error handling
+      alert("Registered successfully! Please login.");
+      navigate("/"); // back to login
+    } catch (err) {
+  if (err.response) {
+    // If backend sends a string → show it directly
+    // If backend sends an object → show its "message" field
+    const message = typeof err.response.data === "string"
+      ? err.response.data
+      : err.response.data.message || "Registration failed";
+    alert(`Registration failed: ${message}`);
+  } else {
+    alert("Server error, please try again later.");
   }
-};
+}
+  };
+
   return (
     <div className="container">
       <div className="card" style={{ maxWidth: 520, margin: "20px auto" }}>
