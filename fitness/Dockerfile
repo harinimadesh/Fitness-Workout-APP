@@ -1,28 +1,27 @@
-# Step 1: Build the application (The "Builder" stage)
-# We use Maven with JDK 21 to compile the Java 21 code
-FROM maven:3.9.6-eclipse-temurin-21 AS build_env
+# Stage 1: Build the application
+# Use Maven with JDK 21
+FROM maven:3.9.6-eclipse-temurin-21 AS builder
 WORKDIR /app
 
-# Copy only the pom.xml first to fetch dependencies 
-# This layer is cached unless your pom.xml changes
+# 1. Copy pom.xml and download dependencies (cached layer)
 COPY pom.xml .
 RUN mvn dependency:go-offline -B
 
-# Copy the source code and build the jar
+# 2. Copy source and build the jar
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-# Step 2: Run the application (The "Runtime" stage)
-# We use a lightweight JRE (Runtime only) to keep the final image small
-FROM eclipse-temurin:21-jre-alpine AS runtime_env
+# Stage 2: Runtime environment
+# Use a slim JRE 21 to keep the final image size under 200MB
+FROM eclipse-temurin:21-jre-alpine AS runtime
 WORKDIR /app
 
-# Copy the built jar from the 'build_env' stage
-# We rename it to app.jar for simplicity
-COPY --from=build_env /app/target/*.jar app.jar
+# Copy the jar from the builder stage
+COPY --from=builder /app/target/*.jar app.jar
 
-# Expose the port Spring Boot runs on
-EXPOSE 8080
+# Render dynamic port binding:
+# We do NOT use 'EXPOSE 8080' because Render uses a random port ($PORT)
+# Spring Boot will automatically use $PORT because of our application.properties setting.
 
-# Run the application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Run with memory constraints to stay within Render's Free Tier limits (512MB)
+ENTRYPOINT ["java", "-Xmx384m", "-Xms384m", "-jar", "app.jar"]
